@@ -1,285 +1,348 @@
+<script setup>
+import Modal from './ModalCreateTarefa.vue'
+import moment from 'moment';
+import { ref } from 'vue'
+const showModal = ref(false)
+</script>
+
 <template>
-        <div class="login-content">
-            <div class="logo-img">
-                <img src="../assets/fiap-logo.svg" id="img-logo" alt="Logo fiap">
+    <div id="content">
+        <header id="header">
+            <div class="header-fiap">
+                <img src="../assets/fiap-logo.svg" class="logo-fiap-small" alt="Logo fiap">
+                <div class="add-tarefa">
+                    <div>
+                        <button id="btn-add-tarefa" @click="showModal = true">
+                            <p class="p-tarefa">+ Adicionar uma tarefa</p>
+                        </button>
+                    </div>
+                    <Teleport to="body">
+                        <modal :show="showModal" @close="showModal = false">
+                            <template #header>
+                                <h3>Adicionar uma tarefa</h3>
+                            </template>
+                        </modal>
+                    </Teleport>
+                </div>
+                <div class="user-info">
+                    <p id="user-name"> Olá, {{ user }}</p>
+                    <input type="button" @click="logout" class="exit-button">
+                </div>
             </div>
-            <form id="app" @submit="login" action="" method="post" class="login-inputs">
-                <div class="input-container">
-                    <img src="../assets/mail.svg" alt="Icon email" class="icon-input">
-                    <div class="group">
-                        <input type="text" v-model="email" required>
-                        <p v-if="error.length">
-                        <p class="error-message">{{ error }}</p>
-                        </p>
-                        <p v-if="errorCredentials.length">
-                        <p class="error-message">{{ errorCredentials }}</p>
-                        </p>
-                        <span class="highlight"></span>
-                        <span class="bar"></span>
-                        <label>Email</label>
+            <hr>
+        </header>
+        <div>
+            <div>
+                <div class="tarefa-filter">
+                    <p>Tarefas</p>
+                    <div class="filter">
+                        <img src="../assets/filtro.svg" alt="Icon Exit" class="filter-mobile">
+                        <div class="filter-params">
+                            <div>
+                                <label class="label-filter">Data prevista de conclusão: </label>
+                                <input type="date" class="input-filter">
+                            </div>
+                            <div>
+                                <label class="label-filter">até: </label>
+                                <input type="date" class="input-filter">
+                            </div>
+                            <div>
+                                <label class="label-filter">status</label>
+                                <select name="" id="" class="input-filter"></select>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="input-container">
-                    <img src="../assets/lock.svg" alt="Icon lock" class="icon-input">
-                    <div class="group">
-                        <input type="password" v-model="password" required>
-                        <span class="highlight"></span>
-                        <span class="bar"></span>
-                        <label>Senha</label>
+            </div>
+            <div>
+                <div v-if="tarefas.length">
+                    <div v-for="tarefa in tarefas">
+                        <div class="">
+                            <div v-if="tarefa.conclusionAt" class="tarefa-row">
+                                <input type="button" class="select-tarefa conclusion-tarefa" value=""
+                                    @click="finishTarefa(tarefa.id)">
+                                <div>
+                                    <h4 class="conclusion-at">{{ tarefa.name }}</h4>
+                                    <p class="finish-date">Concluída em: {{ moment(tarefa.conclusionAt).format('D/MM/YYYY')
+                                        }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div v-else class="tarefa-row">
+                                <input type="button" class="select-tarefa" value="" @click="finishTarefa(tarefa.id)">
+                                <div>
+                                    <h4>{{ tarefa.name }}</h4>
+                                    <p class="finish-date">Conclusão em: {{ moment(tarefa.dateJob).format('D/MM/YYYY') }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <input type="submit" class="btn btn-login" value="Login">
-            </form>
+                <div v-else class="not-tarefas">
+                    <p>Você ainda não possui tarefas cadastradas!</p>
+                </div>
+            </div>
+
         </div>
+    </div>
+    <div class="footer-desktop">
+        <p>© Copyright 2021. Todos os direitos reservados.</p>
+    </div>
 </template>
 <script>
+const showModal = ref(false)
 export default {
-    name: "Login",
+    name: 'TarefasList',
     data() {
         return {
-            error: '',
-            errorCredentials: '',
-            email: '',
-            password: ''
+            user: '',
+            tarefas: []
         }
     },
     methods: {
-        async login(e) {
-            e.preventDefault();
-            this.validEmail()
-            if (!this.validEmail()) {
-                this.error = 'email deve conter @verzel.com.br';
-                return false
-            }
-            const data = {
-                email: this.email,
-                password: this.password
-            }
-
+        async getTarefas() {
+            const req = await fetch('http://localhost:8888/tarefas')
+            this.tarefas = await req.json()
+        },
+        async finishTarefa(id) {
+            const data = { id }
             const dataJson = JSON.stringify(data)
-            const req = await fetch('http://localhost:8888/login', {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
+            await fetch('http://localhost:8888/tarefas', {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
                 body: dataJson
             })
-           
-            if(req.status === 401) {
-                this.errorCredentials = 'Login invalido'
-                return false
-            }
-
-            const signIn = await req.json()
-            localStorage.setItem('token', signIn.token)
-            localStorage.setItem('user', signIn.user.email)
-            this.$router.push("/");
-            
+            window.location.reload()
         },
-        validEmail() {
-            return this.email.includes("@verzel.com.br") ? true : false
+        getUser() {
+            this.user = localStorage.getItem('user').replace('@verzel.com.br', '')
+        },
+        logout() {
+            localStorage.removeItem('token')
+            this.$router.push("/login");
         }
     },
-};
+    mounted() {
+        this.getUser()
+        this.getTarefas()
+    },
+}
 </script>
 
+
 <style scoped>
-input,
-img,
-button {
-    display: block;
-}
-
-button:hover {
-    cursor: pointer
-}
-
-.input-login {
-    margin-bottom: 1.5rem;
-    outline: none;
-}
-
-.error-message {
-    margin: 0px;
+h4,
+p {
     padding: 0px;
-    color: red;
-    font-size: small;
+    margin: 0px;
 }
 
-.icon-input {
-    margin: 0px 15px 30px 0px;
-    width: 20px;
+.logo-fiap-small {
+    width: 90px;
 }
 
-.input-container {
-    display: flex;
-}
-
-.login-content {
+.not-tarefas{
     position: absolute;
     top: 50%;
     left: 50%;
+    width: 300px;
     transform: translate(-50%, -50%);
+    font-size: 12px;
+    font-weight: 900;
+    color: #ED1164;
+    text-align: center;
+}
+
+.conclusion-tarefa {
+    background-color: #575757;
+    background-image: url('../assets/icons-ok.svg');
+}
+
+.exit-button {
+    border: none;
+    background-color: #fff;
+    background-image: url('../assets/exit_transparent.svg');
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+}
+
+.conclusion-at {
+    text-decoration: line-through;
+}
+
+#user-name {
+    margin-right: 10px;
+    font-size: 12px;
 }
 
 
-#img-logo {
-    margin-bottom: 3rem;
+.finish-date {
+    margin-top: 8px;
+    font-size: 12px;
 }
 
-.btn {
+.plus-icon {
+    width: 11px;
+}
+
+.footer-desktop {
+    display: none;
+}
+
+.filter-params {
+    display: none;
+}
+
+.select-tarefa {
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+    border: 1px solid #575757;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.p-tarefa {
+    margin-left: 10px;
+}
+
+.tarefa-row {
+    background-color: #91A3AD26;
     border-radius: 10px;
-    border: 0px;
-    background-color: #ED1164;
-    color: #FFF;
-}
-
-.btn-login {
-    margin-top: 1.5rem;
     padding: 10px;
-    width: 90%;
-    border: none;
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
 }
 
-/* form starting stylings ------------------------------- */
-.group {
-    position: relative;
-    margin-bottom: 2rem;
-}
 
-input {
-    font-size: 18px;
-    padding: 10px 10px 10px 5px;
-    display: block;
-    border: none;
-    border-bottom: 1px solid #757575;
-}
-
-input:focus {
-    outline: none;
-}
-
-/* LABEL ======================================= */
-label {
-    color: #999;
-    font-size: 18px;
-    font-weight: normal;
-    position: absolute;
-    pointer-events: none;
-    left: 5px;
-    top: 10px;
-    transition: 0.2s ease all;
-    -moz-transition: 0.2s ease all;
-    -webkit-transition: 0.2s ease all;
-}
-
-input:focus~label,
-input:valid~label {
-    top: -20px;
-    font-size: 14px;
+.header-fiap {
+    padding: 10px 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     color: #ED1164;
 }
 
-/* BOTTOM BARS ================================= */
-.bar {
-    position: relative;
-    display: block;
-    /* width: 300px; */
+hr {
+    border: 0.1rem solid rgb(241, 241, 241);
 }
 
-.bar:before,
-.bar:after {
-    content: '';
-    height: 2px;
-    width: 0;
-    bottom: 1px;
-    position: absolute;
-    background: #ED1164;
-    transition: 0.2s ease all;
-    -moz-transition: 0.2s ease all;
-    -webkit-transition: 0.2s ease all;
+.tarefa-filter {
+    background-color: #91A3AD26;
+    border-radius: 8px;
+    padding: 0px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: #ED1164;
+    height: 3rem;
+    margin: 10px auto;
 }
 
-.bar:before {
-    left: 50%;
+.add-tarefa {
+    position: fixed;
+    bottom: 0;
+    color: #ED1164;
+    font-weight: 900;
+    margin-bottom: 10px;
+    padding: 5px;
+    width: 100%;
 }
 
-.bar:after {
-    right: 50%;
-}
-
-/* active state */
-input:focus~.bar:before,
-input:focus~.bar:after {
-    width: 50%;
-}
-
-/* HIGHLIGHTER ================================== */
-.highlight {
-    position: absolute;
-    height: 60%;
-    width: 100px;
-    top: 25%;
-    left: 0;
-    pointer-events: none;
-    opacity: 0.5;
-}
-
-input:focus~.highlight {
-    -webkit-animation: inputHighlighter 0.3s ease;
-    -moz-animation: inputHighlighter 0.3s ease;
-    animation: inputHighlighter 0.3s ease;
+#btn-add-tarefa {
+    padding: 10px;
+    border-radius: 10px;
+    border: 0px;
+    border: 1px solid #ed116570;
+    background-color: #91A3AD26;
+    width: 92%;
+    color: #ED1164;
+    font-weight: 900;
+    text-align: left;
 }
 
 @media (min-width: 700px) {
-    .login-content {
+    #content {
+        max-width: 1024px;
+        margin: 0 auto;
+        background: white;
+        padding: 10px;
+    }
+
+    .add-tarefa {
+        display: block;
+        position: relative;
+        width: 250px;
+    }
+    .not-tarefas{
+        font-size: 16px;
+        width: 600px;
+    }
+
+    #btn-add-tarefa {
+        background-color: #ED1164;
+        color: #fff;
+        border: none;
+        cursor: pointer;
+    }
+
+
+    hr {
+        margin-top: 15px;
+        height: 1px;
+        border: none;
+        background-color: rgb(216, 216, 216)
+    }
+
+    .footer-desktop {
         display: flex;
+        position: fixed;
+        bottom: 0;
+        color: #ED1164;
+        font-weight: 100;
+        padding: 5px;
+        width: 100%;
+        justify-content: center;
         align-items: center;
-    }   
-
-    #img-logo {
-        width: 300px;
-        margin: 0px;
+        height: 50px;
+        background-color: #91A3AD26;
     }
 
-    .login-inputs {
-        border: 1px solid #ED1164;
-        padding: 40px;
-        border-radius: 30px;
-        margin-left: 5rem;
+    .filter-mobile {
+        display: none;
     }
 
-}
-
-/* ANIMATIONS ================ */
-@-webkit-keyframes inputHighlighter {
-    from {
-        background: #ED1164;
+    .filter-params {
+        display: flex;
     }
 
-    to {
-        width: 0;
-        background: transparent;
-    }
-}
-
-@-moz-keyframes inputHighlighter {
-    from {
-        background: #ED1164;
+    .label-filter {
+        font-size: 10px;
+        padding: 0px 5px 0px 10px;
     }
 
-    to {
-        width: 0;
-        background: transparent;
-    }
-}
-
-@keyframes inputHighlighter {
-    from {
-        background: #ED1164;
+    .input-filter {
+        width: 100px;
+        border: 1px solid #fc5c99dc;
+        border-radius: 6px;
+        color: #ED1164;
+        padding: 2px;
     }
 
-    to {
-        width: 0;
-        background: transparent;
+    .exit-button {
+        border: none;
+        background-color: #fff;
+        background-image: url('../assets/exit.svg');
+        width: 30px;
+        height: 30px;
     }
 }
 </style>
