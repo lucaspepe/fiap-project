@@ -1,6 +1,7 @@
 <script setup>
 const props = defineProps({
-  show: Boolean
+  show: Boolean, 
+  name: String,
 })
 </script>
 
@@ -8,41 +9,95 @@ const props = defineProps({
   <Transition name="modal">
     <div v-if="show" class="modal-mask">
       <div class="modal-container">
-        <!-- <div class="modal-header"> -->
-        <div class="">
+        <div class="title">
           <slot name="header">Adicionar uma tarefa</slot>
         </div>
 
-        <!-- <div class="modal-body"> -->
-        <div class="">
-          <input type="text" placeholder="Adicionar uma tarefa" name="tarefa" id="tarefa" class="input-modal">
-          <input type="text" placeholder="Data da conclusão" name="data" id="data" class="input-modal">
-        </div>
-
-
-        <!-- <div class="modal-footer"> -->
-        <div class="footer">
-          <slot name="footer" >
-            <button class="btn" @click="$emit('close')">Salvar</button>
-            <button class="btn" @click="$emit('close')">Cancelar</button>
-          </slot>
-        </div>
+        <form id="app" @submit="createTarefa" action="" method="post">
+          <input type="text" placeholder="Adicionar uma tarefa" v-model="tarefa" name="tarefa" id="tarefa"
+            class="input-modal" required>
+          <input type="date" placeholder="Data da conclusão" v-model="dateJob" name="data" id="data"
+            class="input-modal" required>
+          <div>
+            <input type="submit" class="btn btn-salvar" value="Salvar">
+            <input type="button" class="btn btn-cancelar" @click="$emit('close')" value="Cancelar">
+          </div>
+        </form>
       </div>
     </div>
   </Transition>
 </template>
+<script>
+export default {
+  name: 'TarefaForm',
+  data() {
+    return {
+      tarefa: '',
+      dateJob: null,
+      tarefas: null
+    }
+  },
+  methods: {
+    async getTarefas() {
+      const req = await fetch('http://localhost:8888/tarefas')
+      this.tarefas = await req.json()
+    },
+
+    async createTarefa(e) {
+      e.preventDefault();
+      const data = {
+        name: this.tarefa,
+        dateJob: this.dateJob
+      }
+
+      const dataJson = JSON.stringify(data)
+      await fetch('http://localhost:8888/tarefas', {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: dataJson
+      })
+      this.$emit('close')
+      window.location.reload()
+    }
+  },
+  mounted() {
+    this.getTarefas()
+  }
+}
+</script>
 
 <style>
 
+body {
+  font-family: "Open Sans", sans-serif;
+}
 .footer {
   margin-top: 15px;
 }
 
+.title {
+  color: #ED1164;
+}
+
 .btn {
   padding: 15px 40px;
-  border-radius: 10px;
+  border-radius: 15px;
   border: 1px solid #ccc;
   margin-left: 10px;
+  margin-top: 20px;
+}
+
+.btn-salvar {
+  background-color: #ED1164;
+  color: #fff;
+  font-weight: 600;;
+}
+
+.btn-cancelar {
+  text-decoration: underline 1px;
+  border: none;
+  color: #91A3AD;
+  background: #FFF;
 }
 
 .input-modal {
@@ -59,6 +114,7 @@ const props = defineProps({
   border-radius: 6px;
   margin-bottom: 5px;
 }
+
 .modal-mask {
   position: fixed;
   z-index: 9998;
@@ -96,5 +152,16 @@ const props = defineProps({
 .modal-leave-to .modal-container {
   -webkit-transform: scale(1.1);
   transform: scale(1.1);
+}
+
+@media (min-width: 700px) {
+  .modal-container {
+    width: 300px;
+  }
+
+  .btn {
+    cursor: pointer;
+  }
+  
 }
 </style>
