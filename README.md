@@ -3,12 +3,12 @@
 Este projeto visa atender ao trabalho da matéria Front-End Engineering e UX de Engenharia de Software da FIAP
 
 ## 🚀 Executar o projeto localmente
-├── fiap-backend
+├── backend
 
-├── fiap-frontend
+├── frontend
 
 ## Executando o backend
-Abra a pasta fiap-backend e execute no terminal: 
+Abra a pasta backend e execute no terminal: 
 ```bash
   npm install
 ```
@@ -21,7 +21,7 @@ Após a instalação de todas as dependências, execute o comando:
 Pronto, seu backend estará escutando na port 8888
 
 ## Executando o frontend
-Abra a pasta fiap-frontend e execute no terminal: 
+Abra a pasta frontend e execute no terminal: 
 ```bash
   npm install
 ```
