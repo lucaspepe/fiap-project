@@ -4,6 +4,7 @@ Este projeto visa atender ao trabalho da matéria Front-End Engineering e UX de 
 
 ## 🚀 Executar o projeto localmente
 ├── fiap-backend
+
 ├── fiap-frontend
 
 ## Executando o backend
@@ -32,3 +33,7 @@ Após a instalação de todas as dependências, execute o comando:
 ```
 Pronto, o frontend do projeto estará disponível na porta 8888
 digite em seu navegador "http://localhost:8888" e acesse a aplicação.
+
+## Observações 
+Para fazer login na aplicação, pode ser com qualquer nome de usuário, desde que o email seja com final @verzel.com.br
+A senha é a "S3nh@.S3cr3t@" conforme solicitado pelo professor.
