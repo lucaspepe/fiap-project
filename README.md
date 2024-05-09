@@ -1,11 +1,34 @@
-# fiap-project
+# Projeto Site FIAP Tarefas
 
-# Backend
-Abra a pasta backend e digite o comando "npm install" para instalar as dependencias
-Crie um arquivo .env na raiz da pasta backend e cria a variaável PORT apontando para a porta 8888
-inicia o backend com o comando npm run start
+Este projeto visa atender ao trabalho da matéria Front-End Engineering e UX de Engenharia de Software da FIAP
 
+## 🚀 Executar o projeto localmente
+├── fiap-backend
+├── fiap-frontend
 
-# Frontend
-Abra a pasta frontend e digite o comando "npm install" para instalar as dependencias
-inicia o front com o comando npm run dev
+## Executando o backend
+Abra a pasta fiap-backend e execute no terminal: 
+```bash
+  npm install
+```
+para instalar as dependências do projeto.
+
+Após a instalação de todas as dependências, execute o comando:
+```bash
+  npm run start
+```
+Pronto, seu backend estará escutando na port 8888
+
+## Executando o frontend
+Abra a pasta fiap-frontend e execute no terminal: 
+```bash
+  npm install
+```
+para instalar as dependências do projeto.
+
+Após a instalação de todas as dependências, execute o comando:
+```bash
+  npm run dev
+```
+Pronto, o frontend do projeto estará disponível na porta 8888
+digite em seu navegador "http://localhost:8888" e acesse a aplicação.
