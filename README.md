@@ -36,4 +36,5 @@ digite em seu navegador "http://localhost:8888" e acesse a aplicação.
 
 ## Observações 
 Para fazer login na aplicação, pode ser com qualquer nome de usuário, desde que o email seja com final @verzel.com.br
+
 A senha é a "S3nh@.S3cr3t@" conforme solicitado pelo professor.
